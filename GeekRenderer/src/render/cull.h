@@ -30,7 +30,6 @@ public:
 	//ÃæÌÞ³ý
 	bool faceCull(const vec4& v1, const vec4& v2, const vec4& v3);
 
-private:
 	std::vector<vec4> setFrustumPlanes(const mat4& vp);
 	
 };

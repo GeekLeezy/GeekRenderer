@@ -9,6 +9,7 @@
 #include "../structure/camera.h"
 #include "../structure/shader.h"
 #include "cull.h"
+#include "clip.h"
 
 #include <glm/glm.hpp>
 #include <vector>
@@ -25,6 +26,7 @@ private:
 	int height;
 	FrameBuffer* frontBuffer;
 	Cull* cull;
+	Clip* clip;
 
 	RenderMode renderMod;
 
@@ -42,6 +44,7 @@ public:
 		shader = s;
 
 		cull = new Cull(camera->getViewMatrix(), camera->getProjectMatrix());
+		clip = new Clip();
 
 		renderMod = Fill;
 	}
@@ -56,12 +59,17 @@ public:
 			delete camera;
 		if (shader)
 			delete shader;
+		if (cull)
+			delete cull;
+		if (clip)
+			delete clip;
 
 		frontBuffer = nullptr;
 		model = nullptr;
 		camera = nullptr;
 		shader = nullptr;
-
+		cull = nullptr;
+		clip = nullptr;
 	}
 
 	void changeRenderMode();
@@ -74,7 +82,7 @@ public:
 
 	void perspectiveDivision(VerToFrag& v2f);
 
-	void viewportTrans(VerToFrag& v2f);
+	void viewportTrans(VerToFrag& f1, VerToFrag& f2, VerToFrag& f3);
 
 #pragma region Rasterization
 	//void MSAA(const VerToFrag& f1, const VerToFrag& f2, const VerToFrag& f3, const int& x, const int& y);

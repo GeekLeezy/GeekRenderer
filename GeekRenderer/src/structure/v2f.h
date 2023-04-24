@@ -35,21 +35,14 @@ static VerToFrag lerp(const VerToFrag& f1, const VerToFrag& f2, const float& sca
 {
 	VerToFrag f;
 
-	//Õ∏ ”≤Â÷µΩ√’˝
-	float z1 = f1.Z;
-	float z2 = f2.Z;
+	f.worldPos = (1 - scale) * f1.worldPos + scale * f2.worldPos;
+	f.fragPos = (1 - scale) * f1.fragPos + scale * f2.fragPos;
 
-	float z = (1 - scale) * z1 + scale * z2;
+	f.normal = (1 - scale) * f1.normal + scale * f2.normal;
+	f.texture = (1 - scale) * f1.texture + scale * f2.texture;
 
-	f.worldPos = ((1 - scale) * f1.worldPos * z1 + scale * f2.worldPos * z2) / z;
-	f.fragPos = ((1 - scale) * f1.fragPos * z1 + scale * f2.fragPos * z2) / z;
-	//f.fragPos.x = (int)f.fragPos.x;
-	//f.fragPos.y = (int)f.fragPos.y;
-
-	f.normal = ((1 - scale) * f1.normal * z1 + scale * f2.normal * z2) / z;
-	f.texture = ((1 - scale) * f1.texture * z1 + scale * f2.texture * z2) / z;
-
-	f.color = ((1 - scale) * f1.color * z1 + scale * f2.color * z2) / z;
+	f.color = (1 - scale) * f1.color + scale * f2.color;
+	f.Z = (1 - scale) * f1.Z + scale * f2.Z;
 
 	return f;
 }

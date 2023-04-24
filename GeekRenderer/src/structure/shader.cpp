@@ -11,7 +11,7 @@ VerToFrag Shader::vertexShader(const Vertex& v)
 	v2f.normal = mat3(transpose(inverse(modelMatrix))) * v.normal;
 	v2f.color = v.color;
 	v2f.texture = v.texture;
-	v2f.Z = 1.0 / v2f.fragPos.w;
+	v2f.Z = 1.0;
 
 	return v2f;
 }
