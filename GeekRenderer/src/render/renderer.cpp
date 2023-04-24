@@ -1,5 +1,18 @@
 #include "renderer.h"
 
+bool insideTriangle(const vec2& p1, const vec2& p2, const vec2& p3, const vec2& p)
+{
+
+
+	float r1 = (p.x - p1.x) * (p2.y - p1.y) - (p.y - p1.y) * (p2.x - p1.x);
+	float r2 = (p.x - p2.x) * (p3.y - p2.y) - (p.y - p2.y) * (p3.x - p2.x);
+	float r3 = (p.x - p3.x) * (p1.y - p3.y) - (p.y - p3.y) * (p1.x - p3.x);
+
+	if (r1 >= 0 && r2 >= 0 && r3 >= 0)
+		return true;
+	return false;
+}
+
 void Renderer::render()
 {
 	for (int i = 0; i < model->objects.size(); i++)
@@ -20,6 +33,10 @@ void Renderer::render()
 			v2 = obj.mesh.VBO[obj.mesh.EBO[j + 1]];
 			v3 = obj.mesh.VBO[obj.mesh.EBO[j + 2]];
 
+			//视锥剔除
+			if (!cull->frustumCull(v1.position, v2.position, v3.position))
+				continue;
+
 			//1.顶点着色器
 			VerToFrag f1, f2, f3;
 
@@ -33,7 +50,10 @@ void Renderer::render()
 			f3 = shader->vertexShader(v3);
 
 			//片元装配
-			
+			if (!cull->clipSpaceCull(f1.fragPos, f2.fragPos, f3.fragPos))
+				continue;
+
+
 
 			//屏幕映射
 			perspectiveDivision(f1);
@@ -43,6 +63,9 @@ void Renderer::render()
 			viewportTrans(f1);
 			viewportTrans(f2);
 			viewportTrans(f3);
+
+			if (!cull->faceCull(f1.fragPos, f2.fragPos, f3.fragPos))
+				continue;
 
 			//光栅化 & 片元着色
 			if (renderMod == Fill)
@@ -160,19 +183,6 @@ void Renderer::drawLine(const VerToFrag& f1, const VerToFrag& f2)
 
 }
 
-bool insideTriangle(const vec2& p1, const vec2& p2, const vec2& p3, const vec2& p)
-{
-
-
-	float r1 = (p.x - p1.x) * (p2.y - p1.y) - (p.y - p1.y) * (p2.x - p1.x);
-	float r2 = (p.x - p2.x) * (p3.y - p2.y) - (p.y - p2.y) * (p3.x - p2.x);
-	float r3 = (p.x - p3.x) * (p1.y - p3.y) - (p.y - p3.y) * (p1.x - p3.x);
-
-	if (r1 >= 0 && r2 >= 0 && r3 >= 0)
-		return true;
-	return false;
-}
-
 void Renderer::drawTriangle(const VerToFrag& f1, const VerToFrag& f2, const VerToFrag& f3)
 {
 	vec2 p1 = vec2(f1.fragPos);
@@ -210,10 +220,8 @@ void Renderer::drawTriangle(const VerToFrag& f1, const VerToFrag& f2, const VerT
 
 void Renderer::changeRenderMode()
 {
-	if (renderMod == Fill)
-		renderMod = Line;
-	else
-		renderMod = Fill;
+
+	renderMod = renderMod == Line ? Fill : Line;
 }
 
 void Renderer::clearBuffer()

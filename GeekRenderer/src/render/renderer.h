@@ -8,6 +8,7 @@
 #include "../structure/model.h"
 #include "../structure/camera.h"
 #include "../structure/shader.h"
+#include "cull.h"
 
 #include <glm/glm.hpp>
 #include <vector>
@@ -23,8 +24,7 @@ private:
 	int width;
 	int height;
 	FrameBuffer* frontBuffer;
-
-	std::vector<vec4> viewPlanes;
+	Cull* cull;
 
 	RenderMode renderMod;
 
@@ -36,11 +36,13 @@ public:
 	Renderer(const int& w, const int& h, Model* m, Camera* cam, Shader* s,Window* win) : width(w), height(h)
 	{
 		frontBuffer = new FrameBuffer(win->width, win->height, (unsigned char*)win->bmpBuffer);
+		
 		model = m;
 		camera = cam;
 		shader = s;
 
-		viewPlanes.resize(6, vec4(0.0));
+		cull = new Cull(camera->getViewMatrix(), camera->getProjectMatrix());
+
 		renderMod = Fill;
 	}
 
